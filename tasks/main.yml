@@ -1,0 +1,9 @@
+---
+
+- name: Include Graylog Config Docker Task
+  include_tasks: "graylog-config-docker.yml"
+  when: graylog_installation_type is defined and graylog_installation_type == "docker"
+
+- name: Include Graylog Docker Task
+  include_tasks: "graylog-docker.yml"
+  when: graylog_installation_type is defined and graylog_installation_type == "docker"

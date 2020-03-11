@@ -1,0 +1,78 @@
+---
+
+# START GRAYLOG CONFIG
+graylog_installation_type: "docker"        # Available options: docker
+
+graylog_dns_names: [ "graylog.example.local" ]
+
+graylog_http_port: "9000"
+graylog_es_http_port: "9200"
+
+graylog_docker_network: 
+- name: "elasticsearch"    # Should be the same Docker network used by Elasticsearch
+
+# END GRAYLOG CONFIG
+
+# START NGINX CONFIG
+
+install_nginx_reverse_proxy: true     # whether to install NGINX as a reverse proxy for Graylog or not 
+
+nginx_user: "root"
+nginx_group: "root"
+nginx_main_host_dir: "/srv/nginx"
+nginx_config_host_dir: "{{ nginx_main_host_dir }}/conf.d"
+nginx_main_container_dir: "/etc/nginx"
+nginx_config_container_dir: "/etc/nginx/conf.d"
+nginx_http_port: "80"
+
+nginx_config:
+  vhost:
+    server_names: "{{ graylog_dns_names }}"
+  docker_opts:
+    container_name: "nginx"
+    image_name: "nginx"
+    image_tag: "{{ graylog_nginx_docker_image_tag | default('1.17-alpine') }}"
+    volumes:
+      - "{{ nginx_config_host_dir }}:{{ nginx_config_container_dir }}"
+    ports:
+      - "{{ nginx_http_port }}:{{ nginx_http_port }}"
+    log_driver: "json-file"
+    network_mode: "bridge"
+    networks: "{{ graylog_docker_network | default('elasticsearch') }}"
+    purge_networks: "false"
+
+nginx_directories: [
+    {
+      host_dir: "{{ nginx_main_host_dir }}",
+      container_dir: "{{ nginx_main_container_dir }}",
+      owner: "{{ nginx_user }}",
+      group: "{{ nginx_group }}",
+      mode: "0755"
+    },
+    {
+      host_dir: "{{ nginx_config_host_dir }}",
+      container_dir: "{{ nginx_config_container_dir }}",
+      owner: "{{ nginx_user }}",
+      group: "{{ nginx_group }}",
+      mode: "0755"
+    }
+]
+
+nginx_files: [
+    {
+      src: "nginx/conf.d/default.conf.j2",
+      dest: "{{ nginx_config_host_dir }}/default.conf",
+      owner: "{{ nginx_user }}",
+      group: "{{ nginx_group }}",
+      mode: "0644"
+    },
+    {
+      src: "nginx/conf.d/graylog.conf.j2",
+      dest: "{{ nginx_config_host_dir }}/graylog.conf",
+      owner: "{{ nginx_user }}",
+      group: "{{ nginx_group }}",
+      mode: "0644"
+    }
+]
+
+# END NGINX CONFIG

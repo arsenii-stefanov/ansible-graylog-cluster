@@ -1,0 +1,25 @@
+######################################
+###                                ###
+###       MANAGED BY ANSIBLE       ###
+###     (DO NOT EDIT MANUALLY)     ###
+###                                ###
+######################################
+
+upstream graylog { 
+    server {{ graylog_config['docker_opts']['container_name'] }}:{{ graylog_http_port }};
+}
+
+server { 
+    listen {{ nginx_http_port }};
+    server_name {% for item in nginx_config['vhost']['server_names'] %} {{ item }}{% endfor %};
+    
+    location / { 
+        proxy_pass http://graylog;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Graylog-Server-URL http://$host/;
+    }
+}

@@ -1,0 +1,15 @@
+######################################
+###                                ###
+###       MANAGED BY ANSIBLE       ###
+###     (DO NOT EDIT MANUALLY)     ###
+###                                ###
+######################################
+
+server {
+      listen 80 default_server;
+
+      access_log off;
+      location / {
+          return 444;
+      }
+}

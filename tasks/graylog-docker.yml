@@ -1,0 +1,40 @@
+---
+
+- name: GRAYLOG DOCKER TASK | Ensure That Docker Networks Exist
+  docker_network:
+    name: "{{ item.name }}"
+  with_items: "{{ graylog_config['docker_opts']['networks'] }}"
+
+- name: GRAYLOG DOCKER TASK | Start Docker Container [Graylog]
+  docker_container:
+    name: "{{ graylog_config['docker_opts']['container_name'] }}"
+    image: "{{ graylog_config['docker_opts']['image_name'] }}:{{ graylog_config['docker_opts']['image_tag'] }}"
+    state: started
+    restart_policy: always
+    detach: yes
+    interactive: yes
+    tty: yes
+    ports: "{{ graylog_config['docker_opts']['ports'] }}"
+    env: "{{ graylog_config['docker_opts']['env_vars'] | default(omit) }}"
+    log_driver: "{{ graylog_config['docker_opts']['log_driver'] | default(omit) }}"
+    network_mode: "{{ graylog_config['docker_opts']['network_mode'] | default(omit) }}"
+    networks: "{{ graylog_config['docker_opts']['networks'] | default(omit) }}"
+    purge_networks: "{{ graylog_config['docker_opts']['purge_networks'] | default(omit) }}"
+  notify: "graylog_check_status"
+
+- name: GRAYLOG DOCKER TASK | Start Docker Container [NGINX]
+  docker_container:
+    name: "{{ nginx_config['docker_opts']['container_name'] }}"
+    image: "{{ nginx_config['docker_opts']['image_name'] }}:{{ nginx_config['docker_opts']['image_tag'] }}"
+    state: started
+    restart_policy: always
+    detach: yes
+    interactive: yes
+    tty: yes
+    ports: "{{ nginx_config['docker_opts']['ports'] | default(omit) }}"
+    volumes: "{{ nginx_config['docker_opts']['volumes'] | default(omit) }}"
+    log_driver: "{{ nginx_config['docker_opts']['log_driver'] | default(omit) }}"
+    network_mode: "{{ nginx_config['docker_opts']['network_mode'] | default(omit) }}"
+    networks: "{{ nginx_config['docker_opts']['networks'] | default(omit) }}"
+    purge_networks: "{{ nginx_config['docker_opts']['purge_networks'] | default(omit) }}"
+  when: install_nginx_reverse_proxy is defined and install_nginx_reverse_proxy == true

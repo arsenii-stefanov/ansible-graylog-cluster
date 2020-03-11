@@ -1,0 +1,17 @@
+---
+
+- name: graylog_check_status
+  uri:
+    url: "http://127.0.0.1:{{ graylog_http_port }}/api/system/lbstatus"
+    status_code: 200
+  register: graylog_check_result
+  until: graylog_check_result.status == 200
+  retries: 20
+  delay: 15
+
+- name: reload_nginx_docker
+  shell: "docker exec -i {{ nginx_config['docker_opts']['container_name'] }} nginx -s reload"
+
+- name: nginx_check_config_and_reload_docker
+  shell: "docker exec -i {{ nginx_config['docker_opts']['container_name'] }} nginx -t"
+  notify: reload_nginx_docker
