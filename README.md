@@ -28,7 +28,7 @@ docker run -dit --name=mongo --network=elasticsearch -v /srv/mongodb/db:/data/db
 * `FILE: {{ playbook_dir}}/vars/elasticsearch-secrets-graylog-production.yml`
 
 ```
-elasticsearch_password: <STRONG_PASSWORD_FOR_ELASTICSEARCH>
+elasticsearch_bootstrap_password: <STRONG_PASSWORD_FOR_ELASTICSEARCH>
 
 elasticsearch_root_ca_cert_base64: <ROOT_CA_CERT_BASE64_ENCODED>
 elasticsearch_root_ca_key_base64: <ROOT_CA_KEY_BASE64_ENCODED>
@@ -80,7 +80,7 @@ elasticsearch_env_vars:
   # JVM heap size should NOT exceed 50% of your physical RAM
   ES_JAVA_OPTS: "-Xms8g -Xmx8g"
   MAX_LOCKED_MEMORY: "unlimited"
-  ELASTIC_PASSWORD: "{{ elasticsearch_password }}" # 'elasticsearch_password' should be defined in an Ansible secrets file
+  ELASTIC_PASSWORD: "{{ elasticsearch_bootstrap_password }}" # 'elasticsearch_bootstrap_password' should be defined in an Ansible secrets file
 
 # These settings will be used in Jinja2 templates
 elasticsearch_config_opts:
@@ -172,7 +172,7 @@ graylog_config:
       GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:{{ graylog_http_port }}"
       GRAYLOG_HTTP_EXTERNAL_URI: "http://0.0.0.0:{{ graylog_http_port }}/"
       GRAYLOG_HTTP_PUBLISH_URI: "http://{{ ansible_host }}:{{ graylog_http_port }}/"
-      GRAYLOG_ELASTICSEARCH_HOSTS: "http://{{ elasticsearch_user | default('elastic') }}:{{ elasticsearch_password }}@10.236.0.130:{{ graylog_es_http_port }},http://{{ elasticsearch_user | default('elast$
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://{{ elasticsearch_user | default('elastic') }}:{{ elasticsearch_bootstrap_password }}@10.236.0.130:{{ graylog_es_http_port }},http://{{ elasticsearch_user | default('elastic') }}:{{ elasticsearch_bootstrap_password }}@10.236.0.131:{{ graylog_es_http_port }}"
       GRAYLOG_ELASTICSEARCH_DISCOVERY_ENABLED: "true"
       GRAYLOG_MONGODB_URI: "mongodb://mongodb-graylog.example.local:27017/graylog"
       GRAYLOG_ROOT_TIMEZONE: "GMT"
@@ -220,6 +220,11 @@ graylog_nginx_docker_image_tag: "1.17-alpine"
 # Set up Elasticsearch
 - name: ansible-elasticsearch-cluster
   src: git@github.com:arsenii-stefanov/ansible-elasticsearch-cluster.git
+  scm: git
+  version: master
+# Set up Graylog
+- name: ansible-graylog-cluster
+  src: git@github.com:arsenii-stefanov/ansible-graylog-cluster.git
   scm: git
   version: master
 ```
