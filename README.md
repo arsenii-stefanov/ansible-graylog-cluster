@@ -301,8 +301,20 @@ export VAULT_PASS=<Vault password>
 ansible-playbook --vault-password-file ./vault.py -i inventory-graylog_cluster_production graylog-cluster-production.yml -e '{"elasticsearch_initial_setup": true}'
 ```
 
-* If you need to update some config files, directories, OS settings, add new nodes or you would like to insure your cluster integrity, you can use this command. In case any config file is updated, your E$
+* Post installation tasks
 
 ```
-ansible-playbook --vault-password-file ./vault.py -i inventory-graylog_cluster_production graylog-cluster-production.yml -e '{"skip_basic_server_setup": true}'
+ansible-playbook --vault-password-file ./vault.py -i inventory-graylog_cluster_production graylog-cluster-production.yml -e ansible_user="${USER}" --tags "run_post_installation_tasks"
+```
+
+* Second run on the same cluster
+
+```
+ansible-playbook --vault-password-file ./vault.py -i inventory-graylog_cluster_production graylog-cluster-production.yml -e ansible_user="${USER}" -e '{"skip_basic_server_setup": true}'
+```
+
+* Second run when adding a new ES node
+
+```
+ansible-playbook --vault-password-file ./vault.py -i inventory-graylog_cluster_production graylog-cluster-production.yml -e ansible_user="${USER}"
 ```
