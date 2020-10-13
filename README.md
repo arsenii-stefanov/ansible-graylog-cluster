@@ -182,7 +182,8 @@ graylog_config:
       GRAYLOG_ROTATION_STRATEGY: "time"
     log_driver: "json-file"
     network_mode: "bridge"
-    networks: "{{ graylog_docker_network | default('elasticsearch') }}"
+    networks:
+      - name: "{{ graylog_docker_network | default('elasticsearch') }}"
     purge_networks: "false"
     hostname: "{{ inventory_hostname }}"
   config_opts:
