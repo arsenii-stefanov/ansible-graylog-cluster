@@ -184,6 +184,7 @@ graylog_config:
     network_mode: "bridge"
     networks: "{{ graylog_docker_network | default('elasticsearch') }}"
     purge_networks: "false"
+    hostname: "{{ inventory_hostname }}"
   config_opts:
     empty: ""
 
