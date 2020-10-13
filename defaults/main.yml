@@ -38,7 +38,8 @@ nginx_config:
       - "{{ nginx_http_port }}:{{ nginx_http_port }}"
     log_driver: "json-file"
     network_mode: "bridge"
-    networks: "{{ graylog_docker_network | default('elasticsearch') }}"
+    networks:
+      - name: "{{ graylog_docker_network | default('elasticsearch') }}"
     purge_networks: "false"
 
 nginx_directories: [
