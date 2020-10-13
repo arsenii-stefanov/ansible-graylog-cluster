@@ -37,4 +37,5 @@
     network_mode: "{{ nginx_config['docker_opts']['network_mode'] | default(omit) }}"
     networks: "{{ nginx_config['docker_opts']['networks'] | default(omit) }}"
     purge_networks: "{{ nginx_config['docker_opts']['purge_networks'] | default(omit) }}"
+    hostname: "{{ graylog_config['docker_opts']['hostname']| default(omit) }}"
   when: install_nginx_reverse_proxy is defined and install_nginx_reverse_proxy == true
